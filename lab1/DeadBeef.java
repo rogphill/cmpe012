@@ -5,13 +5,12 @@ Used the following from Oracle as documentation:
 https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
 */
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 class DeadBeef {
     private static final int RUNS = 1000;
-    static String fileName =  System.getProperty("user.dir") + File.separator + "lab1" + File.separator + "Output.txt";
+    static String fileName =  System.getProperty("user.dir") + System.getProperty("file.separator") + "lab1" + System.getProperty("file.separator") + "Output.txt";
     public static void main(String[] args) {
         try {
             FileWriter output = new FileWriter(fileName);
