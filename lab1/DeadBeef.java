@@ -1,21 +1,29 @@
+/*
+by Rob Phillips (rogphill@ucsc.edu)
+
+Used the following from Oracle as documentation:
+https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+*/
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 class DeadBeef {
-    static final int RUNS = 1000;
-    static String fileName = "C:\\Users\\dacty\\Documents\\UCSC\\CMPE012\\rogphill\\lab1\\Output.txt";
+    private static final int RUNS = 1000;
+    static String fileName =  System.getProperty("user.dir") + File.separator + "lab1" + File.separator + "Output.txt";
     public static void main(String[] args) {
         try {
             FileWriter output = new FileWriter(fileName);
             for (int i = 0; i < RUNS; i++) {
                 if (((i+1)%4!=0)&&((i+1)%9!=0)) {
-                    output.write(i+1 + System.lineSeparator());
+                    output.write(i+1 + System.getProperty("line.separator"));
                 } else if (((i+1)%4==0)&&((i+1)%9==0)) {
-                    output.write("DEADBEEF" + System.lineSeparator());
+                    output.write("DEADBEEF" + System.getProperty("line.separator"));
                 } else if (((i+1)%4==0)) {
-                    output.write("DEAD" + System.lineSeparator());
+                    output.write("DEAD" + System.getProperty("line.separator"));
                 } else if (((i+1)%9==0)) {
-                    output.write("BEEF" + System.lineSeparator());
+                    output.write("BEEF" + System.getProperty("line.separator"));
                 }
             }
             output.flush();

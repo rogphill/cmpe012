@@ -1,1 +1,4 @@
-Your Lab 1 work *must* be done in this directory.
+by Rob Phillips (rogphill@ucsc.edu)
+
+Used the following from Oracle as documentation:
+https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
