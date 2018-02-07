@@ -519,8 +519,8 @@ Lab 3: Ripple Adder with Memory
 01D with Carlos Ramirez
 22 582 20 799 0 0 \NUL
 Page 7: Ripple Adder (part 5 of 6)
-22 246 594 610 574 0 \NUL
-Added grounds for the keyboard inputs padding with 0s.
+22 228 600 656 580 0 \NUL
+Replaced K_4 and K_5 inputs with grounds, thus padding with 0s.
 3 546 240 595 191 0 0
 3 540 330 589 281 0 0
 3 540 384 589 335 0 0
@@ -628,6 +628,8 @@ AddSub
 14 366 402 415 353
 14 366 288 415 239
 7 690 330 739 281 0 1
+22 228 600 656 580 0 \NUL
+Replaced K_4 and K_5 inputs with grounds, thus padding with 0s.
 1 592 215 619 291
 1 586 305 619 305
 1 586 359 619 319
