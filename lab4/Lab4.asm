@@ -10,26 +10,27 @@ main:
 	li $s1, 4
 	li $s2, 9
 	
-	# Prompts user for input:
+	# Prompts the user for input:
 	li $v0, 4
 	la $a0, numberprompt
 	syscall
 	
-	# Reads the integer and save it in $s0:
+	# Reads the integer and saves it in $s0:
  	li $v0, 5
  	syscall
  	move $s0, $v0
  	
- 	# Initializes a counter with user's inputted number, then emulates a for-loop:
- 	li $t6, 1
- 	move $t7, $s0
+ 	# Initializes a counter with user's number, then emulates a for-loop:
+ 	li $s6, 1
+ 	move $s7, $s0
+ 	
  	start_loop:
  	
  		# Resets $v0 to ensure proper label jumps in the loop:
  		li $v0 0
  		
  		# Checks to see if number is divisible by 4:
- 		div $t6, $s1
+ 		div $s6, $s1
  		mfhi $t0
  		beqz $t0, dead
  		j checkbeef
@@ -42,7 +43,7 @@ main:
  		
  		# Checks to see if user's is divisible by 9:
  		checkbeef:
- 		div $t6, $s2
+ 		div $s6, $s2
  		mfhi $t0
  		beqz $t0, beef
  		j checknumber
@@ -54,20 +55,20 @@ main:
 		syscall
 		j increment
 		
-		#If neither DEAD or BEEF, simply prints number:
+		#If neither DEAD nor BEEF, simply prints number:
 		checknumber:
 		beq $v0, $s1, increment
 		li $v0, 1
-		move $a0, $t6
+		move $a0, $s6
 		syscall
 		
-		# Performs maintenance, such as entering a newline character and incrementing the count:
+		# Performs loop maintenance, such as entering a newline character and incrementing the count:
 		increment:
+		beq $s6, $s7, end_loop
 		li $v0, 11 # syscall 11 = print character
     		li $a0, 10 # 10 = newline character
     		syscall
-		beq $t6, $t7, end_loop
-		addiu $t6, $t6, 1
+		addiu $s6, $s6, 1
 		j start_loop
  	
  	end_loop:
