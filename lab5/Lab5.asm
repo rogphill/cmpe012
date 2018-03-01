@@ -103,11 +103,6 @@ main:
 	# syscall
     	# ***DEBUG***
     	
-    	# Simply prints a new line for formatting using syscall:
-	li $v0, 11 # syscall 11 = print character
-    	li $a0, 10 # 10 = newline character
-    	syscall
-    	
     	#Uses a bitmask to reveal binary. Sets syscall to "print character" mode:
     	add $s5, $s5, 0x80000000 # This hex number in binary translates to 1 x 10^31, perfect for our mask
     	li $v0, 11
