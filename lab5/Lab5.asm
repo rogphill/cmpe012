@@ -107,7 +107,7 @@ main:
     	add $s5, $s5, 0x80000000 # This hex number in binary translates to 1 x 10^31, perfect for our mask
     	li $v0, 11
     	
-    	# Bitmask loop: 
+    	# Bitmask loop to print binary representation: 
     	maskLoop:
     		and $s4, $s0, $s5
     		beqz $s4, zero # If result is 0, the next character is 0
