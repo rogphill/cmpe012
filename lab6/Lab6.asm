@@ -13,31 +13,33 @@
 # key will be in A-Z.
 # 65 (0x41) = 'A', 90 (0x5A) = 'Z', 97 (0x61) = 'a', 122 (0x7A) = 'z'
 
-.text
 EncryptChar:
-	move $v0, $a0
+.text
+	move $t0, $a0
 	move $t1, $a1
 	addi $t1, $t1, -65 # subtracts 65 from the key in preparation for shift
-	blt $v0, 65, __endEncryptChar # branches if less than 65, guaranteed to not be in range.
-	bgt $v0, 122, __endEncryptChar # branches if greater than 122, guaranteed to not be in range.
-	ble $v0, 90, __lowerCase # if less than or equal to 90, must be a lower case ASCII letter, good to go.
-	bge $v0, 97, __upperCase # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
+	blt $t0, 65, __endEncryptChar # branches if less than 65, guaranteed to not be in range.
+	bgt $t0, 122, __endEncryptChar # branches if greater than 122, guaranteed to not be in range.
+	ble $t0, 90, __lowerCase # if less than or equal to 90, must be a lower case ASCII letter, good to go.
+	bge $t0, 97, __upperCase # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
 	b __endEncryptChar # handles rest of cases (i.e., 91, ..., 96)
 	
 	__lowerCase:
-		add $v0, $v0, $t1 # adds shift to character
-		bgt $v0, 90, __fixShift # checks if greater than 90, if it is, needs to be fixed
+		add $t0, $t0, $t1 # adds shift to character
+		bgt $t0, 90, __fixShift # checks if greater than 90, if it is, needs to be fixed
 		b __endEncryptChar # otherwise, character is encrypted
 		
 	__upperCase:
-		add $v0, $v0, $t1 # adds shift to character
-		bgt $v0, 122, __fixShift # checks if greater than 122, if it is, needs to be fixed
+		add $t0, $t0, $t1 # adds shift to character
+		bgt $t0, 122, __fixShift # checks if greater than 122, if it is, needs to be fixed
 		b __endEncryptChar # otherwise, character is encrypted
 		
 	__fixShift:
-		addi $v0, $v0, -26 # subtracts 26 to arrive back at the start of the ASCII alphabet	
+		addi $t0, $t0, -26 # subtracts 26 to arrive back at the start of the ASCII alphabet	
 
-__endEncryptChar: jr $ra
+__endEncryptChar: 
+	move $v0, $t0
+	jr $ra
 
 # Subroutine DecryptChar
 # Decrypts a single character using a single key character.
@@ -49,8 +51,11 @@ __endEncryptChar: jr $ra
 # key will be in A-Z
 
 DecryptChar:
-	jr $ra
+	
+	
+	
 __endDecryptChar:
+	jr $ra
 
 # Subroutine EncryptString
 # Encrypts a null-terminated string of length 30 or less,
