@@ -18,23 +18,23 @@ EncryptChar:
 	move $t0, $a0
 	move $t1, $a1
 	addi $t1, $t1, -65 # subtracts 65 from the key in preparation for shift
-	blt $t0, 65, __endEncryptChar # branches if less than 65, guaranteed to not be in range.
-	bgt $t0, 122, __endEncryptChar # branches if greater than 122, guaranteed to not be in range.
-	ble $t0, 90, __lowerCase # if less than or equal to 90, must be a lower case ASCII letter, good to go.
-	bge $t0, 97, __upperCase # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
+	# blt $t0, 65, __endEncryptChar # branches if less than 65, guaranteed to not be in range.  # commented out as moving alphabet catchers to string function
+	# bgt $t0, 122, __endEncryptChar # branches if greater than 122, guaranteed to not be in range.
+	ble $t0, 90, __lowerCaseEncrypt # if less than or equal to 90, must be a lower case ASCII letter, good to go.
+	bge $t0, 97, __upperCaseEncrypt # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
 	b __endEncryptChar # handles rest of cases (i.e., 91, ..., 96)
 	
-	__lowerCase:
+	__lowerCaseEncrypt:
 		add $t0, $t0, $t1 # adds shift to character
-		bgt $t0, 90, __fixShift # checks if greater than 90, if it is, needs to be fixed
+		bgt $t0, 90, __fixShiftEncrypt # checks if greater than 90, if it is, needs to be fixed
 		b __endEncryptChar # otherwise, character is encrypted
 		
-	__upperCase:
+	__upperCaseEncrypt:
 		add $t0, $t0, $t1 # adds shift to character
-		bgt $t0, 122, __fixShift # checks if greater than 122, if it is, needs to be fixed
+		bgt $t0, 122, __fixShiftEncrypt # checks if greater than 122, if it is, needs to be fixed
 		b __endEncryptChar # otherwise, character is encrypted
 		
-	__fixShift:
+	__fixShiftEncrypt:
 		addi $t0, $t0, -26 # subtracts 26 to arrive back at the start of the ASCII alphabet	
 
 __endEncryptChar: 
@@ -49,12 +49,34 @@ __endEncryptChar:
 # Side effects: None
 # Notes: Plain and cipher will be in alphabet A-Z or a-z
 # key will be in A-Z
+# 65 (0x41) = 'A', 90 (0x5A) = 'Z', 97 (0x61) = 'a', 122 (0x7A) = 'z'
 
 DecryptChar:
+	.text
+	move $t0, $a0
+	move $t1, $a1
+	addi $t1, $t1, -65 # subtracts 65 from the key in preparation for shift
+	# blt $t0, 65, __endDecryptChar # branches if less than 65, guaranteed to not be in range. # commented out as moving alphabet catchers to string function
+	# bgt $t0, 122, __endDecryptChar # branches if greater than 122, guaranteed to not be in range.
+	ble $t0, 90, __lowerCaseDecrypt # if less than or equal to 90, must be a lower case ASCII letter, good to go.
+	bge $t0, 97, __upperCaseDecrypt # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
+	b __endDecryptChar # handles rest of cases (i.e., 91, ..., 96)
 	
+	__lowerCaseDecrypt:
+		sub $t0, $t0, $t1 # subtracts shift to character
+		blt $t0, 65, __fixShiftDecrypt # checks if less than 65, if it is, needs to be fixed
+		b __endDecryptChar # otherwise, character is encrypted
 	
+	__upperCaseDecrypt:
+		sub $t0, $t0, $t1 # subtracts shift to character
+		blt $t0, 97, __fixShiftDecrypt # checks if less than 97, if it is, needs to be fixed
+		b __endDecryptChar # otherwise, character is encrypted
+	
+	__fixShiftDecrypt:
+		addi $t0, $t0, 26 # adds 26 to arrive back at the end of the ASCII alphabet	
 	
 __endDecryptChar:
+	move $v0, $t0
 	jr $ra
 
 # Subroutine EncryptString
@@ -69,8 +91,8 @@ __endDecryptChar:
 # $a0, $a1, and $a2 may be altered
 
 EncryptString:
-	jr $ra
-__endEncryptString:
+	
+__endEncryptString: jr $ra
 
 # Subroutine DecryptString
 # Decrypts a null-terminated string of length 30 or less,
@@ -84,8 +106,8 @@ __endEncryptString:
 # $a0, $a1, and $a2 may be altered
 
 DecryptString:
-	jr $ra
-__endDecryptString:
+	
+__endDecryptString: jr $ra
 
 # Subroutine __upperEncrypt
 

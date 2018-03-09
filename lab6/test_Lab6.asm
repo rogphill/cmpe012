@@ -29,6 +29,9 @@ main: nop
 	
 	jal robsTest #A subroutine to test student's EncryptChar
 	nop
+	
+	jal decryptTest #A subroutine to test student's EncryptChar
+	nop
 
 	jal testES #A subroutine to test student's EncryptString
 	nop
@@ -115,7 +118,7 @@ robsTest_introstr: 	.ascii 	"\n>>> Rob's Test:"
 			.ascii  "\n plain, key, expected, actual = "
 robsTest_plainchar: 	.ascii 	"Z"
 robsTest_keychar: 	.ascii 	"Z"
-robsTest_expectedchar: 	.asciiz "Y"
+robsTest_expectedchar: 	.asciiz "A"
 .text
 robsTest: nop
 	sw $ra, ($sp) #store return address
@@ -127,7 +130,36 @@ robsTest: nop
 	lb $a1,	robsTest_keychar
 	lb $a2,	robsTest_expectedchar
 	
-	jal EncryptChar  #call student's subroutine
+	jal DecryptChar  #call student's subroutine
+	
+	print_char($v0) #print result
+	
+	addi $sp, $sp, 4 #return to calling code
+	lw $ra, ($sp)
+	jr $ra	
+	
+	# Subroutine decryptTest
+# input:	None
+# output:  	None
+# Side effects: 
+.data
+decryptTest_introstr: 	.ascii 	"\n>>> Decrypt Test:"
+			.ascii  "\n plain, key, expected, actual = "
+decryptTest_plainchar: 	.ascii 	"a"
+decryptTest_keychar: 	.ascii 	"B"
+decryptTest_expectedchar: .asciiz "z"
+.text
+decryptTest: nop
+	sw $ra, ($sp) #store return address
+	subi $sp, $sp, 4
+
+	print_str(decryptTest_introstr) #print test description
+	
+	lb $a0, decryptTest_plainchar #prepare arguments to student's subroutine
+	lb $a1,	decryptTest_keychar
+	lb $a2,	decryptTest_expectedchar
+	
+	jal DecryptChar  #call student's subroutine
 	
 	print_char($v0) #print result
 	
