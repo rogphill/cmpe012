@@ -95,27 +95,28 @@ EncryptString:
 	encryptLength: .space 31
 	.text
 	la $a2, encryptLength # points to address to store cipher text string with .space length 31
-	la $s0, 0($a1) # stores address of key[0] for later use in __resetKeyAddress
+	move $t2, $a1 # stores address of key[0] for later use in __resetKeyAddress
+	move $t3, $a3 # stores pointer to first character of cipher address so we can return it later
+	
 	addi $sp, $sp, -4 # increases stack pointer by 4
 	sw $ra, 0($sp) # pushs the return address on to the stack so we can come back out of the subroutine
 	 
 	__encryptLoop:
-		lb $t0, 0($a0) # loads byte stored at address of the unciphered string
-		beqz $t0, __endEncryptString # tests if byte is null-terminator. if it is, branch to __endEncryptString
+		lb $t4, 0($a0) # loads byte stored at address of the unciphered string
+		beqz $t4, __endEncryptString # tests if byte is null-terminator. if it is, branch to __endEncryptString
 		
-		lb $t1, 0($a1) # loads byte stored at the address of the key
-		beq $t1, $zero, __resetKeyAddress # if null-terminator, repoint the address of key to first char
+		lb $t5, 0($a1) # loads byte stored at the address of the key
+		beq $t5, $zero, __resetKeyAddress # if null-terminator, repoint the address of key to first char
 		b __testInput # otherwise, branch to __testInput
 		
 		__resetKeyAddress:
-			move $a1, $s0
-			move $t1, $s0
+			move $a1, $t2 # moves pointer to first character of key address
 			
 		__testInput:
-			blt $t0, 65, __notAlphabet # is punctuation, so branch to __notAlphabet
-			bgt $t0, 122, __notAlphabet # is punctuation, so branch to __notAlphabet
-			ble $t0, 90, __callEncryptChar # if less than or equal to 90, must be a lower case ASCII letter, good to go.
-			bge $t0, 97, __callEncryptChar # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
+			blt $t4, 65, __notAlphabet # is punctuation, so branch to __notAlphabet
+			bgt $t4, 122, __notAlphabet # is punctuation, so branch to __notAlphabet
+			ble $t4, 90, __callEncryptChar # if less than or equal to 90, must be a lower case ASCII letter, good to go.
+			bge $t4, 97, __callEncryptChar # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
 			# else, punctuation (i.e., 91, ..., 96) and falls to __notAlphabet
 		
 		__notAlphabet:
@@ -123,7 +124,6 @@ EncryptString:
 			addi $a0, $a0, 1 # increments address of unciphered string
 			addi $a2, $a2, 1 # increments address of ciphered string
 			b __encryptLoop
-			
 			
 		__callEncryptChar:
 			addi $sp, $sp, -4 # increases stack pointer by 4
@@ -135,10 +135,10 @@ EncryptString:
 			addi $sp, $sp, -4 # increases stack pointer by 4
 			sw $v0, 0($sp) # stores v0 on the stack
 			
-			move $a0, $t0 # loads plaintext "variable" for EncryptChar
-			move $a1, $t1 # loads key "variable" for EncryptChar
+			move $a0, $t4 # loads plaintext "variable" for EncryptChar
+			move $a1, $t5 # loads key "variable" for EncryptChar
 			jal EncryptChar # calls EncryptChar subroutine
-			sb $v0, 0($s0) # moves output from EncryptChar to a temp
+			move $t6, $v0 # moves output from EncryptChar to a temp
 			
 			lw $v0, 0($sp) # loads v0 back in from stack
 			addi $sp, $sp, 4 # decreases stack pointer by 4
@@ -149,14 +149,15 @@ EncryptString:
 			lw $a0, 0($sp) # loads a0 back in from stack
 			addi $sp, $sp, 4 # decreases stack pointer by 4
 			
-			lb $s1, 0($s0)			
-			sb $s1, 0($a2) # adds result of EncryptChar to the string
+			sb $t6, 0($a2) # adds result of EncryptChar to the string
+			
 			addi $a0, $a0, 1 # increments address of unciphered string
 			addi $a1, $a1, 1 # increments address of key string
 			addi $a2, $a2, 1 # increments address of ciphered string
 			b __encryptLoop
 			
-__endEncryptString: 
+__endEncryptString: 	
+	move $a3, $t3 # moves cipher pointer to the original character
 	
 	lw $ra, 0($sp)
 	addi $sp, $sp, 4
