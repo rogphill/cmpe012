@@ -24,14 +24,14 @@
 #-------Main testing code for Lab6.asm-------
 .text
 main: nop
-	jal testEC #A subroutine to test student's EncryptChar
-	nop
+	# jal testEC #A subroutine to test student's EncryptChar
+	 nop
 	
-	jal robsTest #A subroutine to test student's EncryptChar
-	nop
+	# jal robsTest #A subroutine to test student's EncryptChar
+	 nop
 	
-	jal decryptTest #A subroutine to test student's EncryptChar
-	nop
+	# jal decryptTest #A subroutine to test student's EncryptChar
+	 nop
 
 	jal testES #A subroutine to test student's EncryptString
 	nop
@@ -78,11 +78,11 @@ testEC: nop
 .data
 testES_introstr:	.ascii		"\n\n>>> Encrypt string test:"
 testES_prefix1: 	.ascii		"\n     Plain: "
-testES_plain:   	.asciiz 			"NZA"
+testES_plain:   	.asciiz 			"Ggmkq. Ugkt hu b sgts."
 testES_prefix2: 	.ascii 		"\n       Key: "
-testES_key: 		.asciiz  			"BBA"
+testES_key: 		.asciiz  			"ZCB"
 testES_prefix3: 	.ascii 		"\n  Expected: "
-testES_expected:	.asciiz 	 		"OAA"
+testES_expected:	.asciiz 	 		"Hello. This is a test."
 testES_prefix4: 	.asciiz 	"\n    Actual: "
 testES_result: 		.space 	 	maxStrLen				
 
@@ -100,7 +100,7 @@ testES: nop
 	la $a1,	testES_key
 	la $a2,	testES_result
 
-	jal EncryptString  #call student's subroutine
+	jal DecryptString  #call student's subroutine
 	
 	print_str(testES_result)  #print the result
 
