@@ -4,13 +4,13 @@
 # Description: This program is a collection of subroutines to be used by an independent driver that will emulate the encryption and decryption of a Vignere Cipher.
 
 .macro push(%reg)
-	addi $sp, $sp, -4
 	sw %reg, 0($sp)
+	addi $sp, $sp, -4
 .end_macro
 
 .macro pop(%reg)
-	lw %reg, 0($sp)
 	addi $sp, $sp, 4
+	lw %reg, 0($sp)
 .end_macro
 
 # Subroutine EncryptChar
@@ -137,11 +137,14 @@ __validateKey:
 		sub $a1, $a1, $t7 # otherwise move back to key[0] to prepare for encryption
 		
 __encryptLoop:
+	push($a0) # save $a0, pushing on to stack
+	push($a1) # save $a1, pushing on to stack
+
 	lb $t4, 0($a0) # loads byte stored at address of the unciphered string
-	beqz $t4, __endEncryptString # tests if byte is null-terminator. if it is, branch to __endEncryptString
-		
 	lb $t5, 0($a1) # loads byte stored at the address of the key
-	beq $t5, $zero, __resetKeyAddress # if null-terminator, repoint the address of key to first char
+
+	beqz $t4, __endEncryptString # tests if byte is null-terminator. if it is, branch to __endEncryptString
+	beqz $t5, __resetKeyAddress # if key is null-terminator, repoint the address of key to first char
 	b __testInput # otherwise, branch to __testInput
 		
 	__resetKeyAddress:
@@ -155,36 +158,21 @@ __encryptLoop:
 		# else, punctuation (i.e., 91, ..., 96) and falls to __notAlphabet
 		
 	__notAlphabet:
-		sb $v0, 0($a2)
+		sb $a0, 0($a2) # store unciphered character to ciphered string
+		
+		pop($a1) # pops off $a1
+		pop($a0) # pops off $a0
+		
 		addi $a0, $a0, 1 # increments address of unciphered string
 		addi $a2, $a2, 1 # increments address of ciphered string
 		b __encryptLoop
 			
 	__callEncryptChar:
-		addi $sp, $sp, -4 # increases stack pointer by 4
-		sw $a0, 0($sp) # stores a0 on the stack
-			
-		addi $sp, $sp, -4 # increases stack pointer by 4
-		sw $a1, 0($sp) # stores a1 on the stack
-		
-		addi $sp, $sp, -4 # increases stack pointer by 4
-		sw $v0, 0($sp) # stores v0 on the stack
-			
-		move $a0, $t4 # loads plaintext "variable" for EncryptChar
-		move $a1, $t5 # loads key "variable" for EncryptChar
 		jal EncryptChar # calls EncryptChar subroutine
-		move $t6, $v0 # moves output from EncryptChar to a temp
-			
-		lw $v0, 0($sp) # loads v0 back in from stack
-		addi $sp, $sp, 4 # decreases stack pointer by 4
-			
-		lw $a1, 0($sp) # loads a1 back in from stack
-		addi $sp, $sp, 4 # decreases stack pointer by 4
-			
-		lw $a0, 0($sp) # loads a0 back in from stack
-		addi $sp, $sp, 4 # decreases stack pointer by 4
-			
-		sb $t6, 0($a2) # adds result of EncryptChar to the string
+		sb $v0, 0($a2) # loads result of EncryptChar into $a2
+		
+		pop($a1) # pops off $a1
+		pop($a0) # pops off $a0
 			
 		addi $a0, $a0, 1 # increments address of unciphered string
 		addi $a1, $a1, 1 # increments address of key string
@@ -192,10 +180,9 @@ __encryptLoop:
 		b __encryptLoop
 			
 __endEncryptString: 	
-	move $a3, $t3 # moves cipher pointer to the original character
-	
-	lw $ra, 0($sp)
-	addi $sp, $sp, 4
+	pop($a2)
+	pop($v0) # restores values to original input before entering subroutine
+	pop($ra)
 	jr $ra # jumps out of subroutine
 	
 __errorEncryptString:
