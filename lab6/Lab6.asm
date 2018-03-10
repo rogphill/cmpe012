@@ -208,5 +208,94 @@ __errorEncryptString:
 # $a0, $a1, and $a2 may be altered
 
 DecryptString:
+	.text
+	push($ra) # push return address to stack so we can jump back out of loop
+	push($v0) # preserve "output" value by pushing to stack
+	push($a2) # preserve original address of ciphertext string
+
+	move $t2, $a1 # stores address of key[0] for later use in __resetKeyAddress
+	move $t7, $zero # initializes a counter for sanitization 
 	
-__endDecryptString: jr $ra
+__validateInputDecrypt:
+	lb $v0, 0($a0) # load character byte
+	beqz $v0, __checkInputValidationDecrypt # if null-terminated, check if anything has been counted
+	beq $t7, 31, __errorDecryptString # if longer than 31, sends to error handling
+	addi $a0, $a0, 1 # otherwise, good to go. increment string address
+	addi $t7, $t7, 1 # increment counter
+	b __validateInputDecrypt # otherwise, continue through the loop
+
+	__checkInputValidationDecrypt:
+		beqz $t7, __errorDecryptString # if no character has been reached yet there is a null-terminater, exit
+		sub $a0, $a0, $t7 # otherwise move back to string[0] to prepare for encryption
+		move $t7, $zero # reset counter for use in validateKey
+	
+# 65 (0x41) = 'A', 90 (0x5A) = 'Z', 97 (0x61) = 'a', 122 (0x7A) = 'z'					
+__validateKeyDecrypt:
+	lb $v0, 0($a1) # load key character byte
+	beqz $v0, __checkKeyValidationDecrypt # if null-terminated, check validation
+	blt $v0, 65, __errorDecryptString # if less than value of a capital ASCII letter, send to error
+	bgt $v0, 90, __errorDecryptString # if greater than value of a capital ASCII letter, send to error
+	addi $a1, $a1, 1 # otherwise, good to go. increment string address.
+	addi $t7, $t7, 1 # and increment count
+	b __validateKeyDecrypt # repeat loop
+	
+	__checkKeyValidationDecrypt:
+		beqz $t7, __errorDecryptString # if null terminator has been reached and count is zero, send to error
+		sub $a1, $a1, $t7 # otherwise move back to key[0] to prepare for encryption
+		
+__decryptLoop:
+	push($a0) # save $a0, pushing on to stack
+	push($a1) # save $a1, pushing on to stack
+
+	lb $a0, 0($a0) # loads byte stored at address of the unciphered string
+	lb $a1, 0($a1) # loads byte stored at the address of the key
+
+	beqz $a0, __endDecryptString # tests if byte is null-terminator. if it is, branch to __endEncryptString
+	beqz $a1, __resetKeyAddressDecrypt # if key is null-terminator, repoint the address of key to first char
+	b __testInputDecrypt # otherwise, branch to __testInput
+		
+	__resetKeyAddressDecrypt:
+		move $a1, $t2 # moves pointer to first character of key address
+		addi $sp, $sp, 4 # bumps stack pointer up one word
+		sw $a1, 0($sp) # store updated $a1 into stack
+		addi $sp, $sp, -4 # bumps stack back
+		lb $a1, 0($a1) # loads byte at address of a1 into a1
+			
+	__testInputDecrypt:
+		blt $a0, 65, __notAlphabetDecrypt # is punctuation, so branch to __notAlphabet
+		bgt $a0, 122, __notAlphabetDecrypt # is punctuation, so branch to __notAlphabet
+		ble $a0, 90, __callDecryptChar # if less than or equal to 90, must be a lower case ASCII letter, good to go.
+		bge $a0, 97, __callDecryptChar # if greater than or equal to 97, must be an upper case ASCII letter, good to go.
+		# else, punctuation (i.e., 91, ..., 96) and falls to __notAlphabet
+		
+	__notAlphabetDecrypt:
+		sb $a0, 0($a2) # store unciphered character to ciphered string
+		
+		pop($a1) # pops off $a1
+		pop($a0) # pops off $a0
+		
+		addi $a0, $a0, 1 # increments address of unciphered string
+		addi $a2, $a2, 1 # increments address of ciphered string
+		b __decryptLoop
+			
+	__callDecryptChar:
+		jal DecryptChar # calls DecryptChar subroutine
+		sb $v0, 0($a2) # loads result of DecryptChar into $a2
+		
+		pop($a1) # pops off $a1
+		pop($a0) # pops off $a0
+			
+		addi $a0, $a0, 1 # increments address of unciphered string
+		addi $a1, $a1, 1 # increments address of key string
+		addi $a2, $a2, 1 # increments address of ciphered string
+		b __decryptLoop
+			
+__endDecryptString: 	
+	addi $sp, $sp, 8
+	
+__errorDecryptString:
+	pop($a2)
+	pop($v0) # restores values to original input before entering subroutine
+	pop($ra)
+	
+	jr $ra # jumps out of subroutine
