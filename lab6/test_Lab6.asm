@@ -78,11 +78,11 @@ testEC: nop
 .data
 testES_introstr:	.ascii		"\n\n>>> Encrypt string test:"
 testES_prefix1: 	.ascii		"\n     Plain: "
-testES_plain:   	.asciiz 			"Hello. This is a test."
+testES_plain:   	.asciiz 			"the quick brown fox jumped over."
 testES_prefix2: 	.ascii 		"\n       Key: "
-testES_key: 		.asciiz  			"NotALegalKey"
+testES_key: 		.asciiz  			"DEADBEEF"
 testES_prefix3: 	.ascii 		"\n  Expected: "
-testES_expected:	.asciiz 	 		"Ggmkq. Ugkt hu b sgts."
+testES_expected:	.asciiz 	 		"tle tvmgp evozo jsc jymsfh sahv."
 testES_prefix4: 	.asciiz 	"\n    Actual: "
 testES_result: 		.space 	 	maxStrLen				
 

@@ -6,6 +6,21 @@ Lab 6: Vignere Cipher
 
 Magic Number: 0123
 
+Pseudocode: 
+# encryptString (String unciphered, String key): //decrypt is very similar with same logic
+#     String ciphered[len(unciphered)]
+#     for (i = 0, i < len(unciphered), i++) {
+#         key[i] -= 97 //to get shift value
+#         if ((unciphered[i] >= 65 && unciphered[i] <= 90) || (unciphered[i] >= 97 && unciphered[i] <= 122){
+#             ciphered[i] = unciphered[i] + key[i]
+#         } else {
+#             ciphered[i] = unciphered[i]
+#         if (key[i+1] == null) {
+#             point back to key[0]
+#         }
+#     }
+#     return ciphered
+
 This was a very tough lab! EncryptChar and DecryptChar were relatively straight-forward, but EncryptString was the real time sink. The surprising part with this lab was all of the book keeping that needed to be done, with storing things in the stack, repointing to correct addresses, incrementing counts, preparing variables for the EncryptChar and DecryptChar calls, etc. 
 
 What worked well for me was to take everything in very bite-sized modular chunks, like I approached the last lab. It really helped to make macros for push and pull for use in the EncryptString and DecryptString subroutines, as I ended up having to use the stack a lot -- something I had not envisioned needing when I started the lab. I also made a flowchart/map type of diagram on paper which helped a LOT with thought process. It was also imperative to use stepthroughs and breakpoints to find out exactly what was happening. I had a nasty memory address bug that I would not have been able to figure out without looking at it in the memory -- MARS is great for that!

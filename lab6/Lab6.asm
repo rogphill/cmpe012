@@ -2,6 +2,22 @@
 # Author: Robert George Phillips (rogphill)
 # Email: rogphill@ucsc.edu
 # Description: This program is a collection of subroutines to be used by an independent driver that will emulate the encryption and decryption of a Vignere Cipher.
+# Pseudocode:
+# 
+# encryptString (String unciphered, String key): //decrypt is very similar with same logic
+#     String ciphered[len(unciphered)]
+#     for (i = 0, i < len(unciphered), i++) {
+#         key[i] -= 97 //to get shift value
+#         if ((unciphered[i] >= 65 && unciphered[i] <= 90) || (unciphered[i] >= 97 && unciphered[i] <= 122){
+#             ciphered[i] = unciphered[i] + key[i]
+#         } else {
+#             ciphered[i] = unciphered[i]
+#         if (key[i+1] == null) {
+#             point back to key[0]
+#         }
+#     }
+#     return ciphered
+
 
 .macro push(%reg)
 	sw %reg, 0($sp)
